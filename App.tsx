@@ -1,28 +1,66 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+// In App.js in a new project
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import * as React from 'react';
+import { View, Text, ScrollView } from 'react-native';
+import {
+  createStaticNavigation,
+  StaticParamList,
+  useNavigation,
+} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+function HomeScreen() {
+  const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text
+        onPress={() => {
+          navigation.navigate('Sheet');
+        }}
+      >
+        Home Screen
+      </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+function SheetScreen() {
+  return (
+    <View style={{ flex: 1, backgroundColor: 'green' }}>
+      <View collapsable={false}>
+        <Text>Sheet Header</Text>
+      </View>
+      <ScrollView>
+        <View style={{ width: 200, height: 200, backgroundColor: 'red' }} />
+      </ScrollView>
+    </View>
+  );
+}
+
+const RootStack = createNativeStackNavigator({
+  screens: {
+    Home: HomeScreen,
+    Sheet: {
+      screen: SheetScreen,
+      options: {
+        presentation: 'formSheet',
+        headerShown: false,
+      },
+    },
   },
 });
 
-export default App;
+type RootStackParamList = StaticParamList<typeof RootStack>;
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+
+const Navigation = createStaticNavigation(RootStack);
+
+export default function App() {
+  return <Navigation />;
+}
